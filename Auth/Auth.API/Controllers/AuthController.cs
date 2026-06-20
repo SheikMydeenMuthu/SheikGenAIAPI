@@ -20,17 +20,38 @@ namespace Auth.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequestDto request)
         {
-            var command = new RegisterCommand(request.FullName, request.Email, request.Password);
-            var userId = await _mediator.Send(command);
-            return Ok(new { userId });
+            try
+            {
+                var command = new RegisterCommand(request.FullName, request.Email, request.Password);
+                var userId = await _mediator.Send(command);
+                return Ok(new { userId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
-            var command = new LoginCommand(request.Email, request.Password);
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            try
+            {
+                var command = new LoginCommand(request.Email, request.Password);
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            // Implementation for logout
+            return Ok();
         }
     }
 }

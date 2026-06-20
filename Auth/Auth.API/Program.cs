@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Auth.Application.Common.Behaviors;
 using Auth.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // MediatR
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(Auth.Application.Features.Auth.Commands.LoginCommand).Assembly));
+
+builder.Services.AddValidatorsFromAssembly(typeof(Auth.Application.Features.Auth.Commands.LoginCommand).Assembly);
+builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // Controllers
 builder.Services.AddControllers();
