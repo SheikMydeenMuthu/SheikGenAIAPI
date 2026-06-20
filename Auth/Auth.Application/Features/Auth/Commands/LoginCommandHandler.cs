@@ -1,5 +1,6 @@
 using Auth.Application.DTOs;
 using Auth.Application.Interfaces;
+using Auth.Domain.Entities;
 using MediatR;
 
 namespace Auth.Application.Features.Auth.Commands;
@@ -23,12 +24,22 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDt
             throw new UnauthorizedAccessException("Invalid credentials");
 
         var accessToken = _jwtTokenService.GenerateAccessToken(user);
-        var refreshToken = _jwtTokenService.GenerateRefreshToken();
+        var refreshTokenValue = _jwtTokenService.GenerateRefreshToken();
+
+        var refreshToken = new RefreshToken
+        {
+            Token = refreshTokenValue,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            UserId = user.Id
+        };
+
+        await _unitOfWork.Users.AddRefreshTokenAsync(refreshToken);
+        await _unitOfWork.SaveChangesAsync();
 
         return new LoginResponseDto
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken,
+            RefreshToken = refreshTokenValue,
             ExpiresAt = DateTime.UtcNow.AddMinutes(60)
         };
     }

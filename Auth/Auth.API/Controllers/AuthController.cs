@@ -37,6 +37,15 @@ namespace Auth.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Refresh(RefreshTokenRequestDto request)
+        {
+            var command = new RefreshTokenCommand(request.RefreshToken);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
