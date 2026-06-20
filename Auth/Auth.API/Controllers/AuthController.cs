@@ -1,5 +1,7 @@
+using Auth.API.Filters;
 using Auth.Application.DTOs;
 using Auth.Application.Features.Auth.Commands;
+using Auth.Application.Features.Auth.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +25,7 @@ namespace Auth.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterRequestDto request)
         {
-            var command = new RegisterCommand(request.FullName, request.Email, request.Password);
+            var command = new RegisterCommand(request.FullName, request.Email, request.Password, request.Role);
             var userId = await _mediator.Send(command);
             return Ok(new { userId });
         }
@@ -44,6 +46,17 @@ namespace Auth.API.Controllers
             var command = new RefreshTokenCommand(request.RefreshToken);
             var result = await _mediator.Send(command);
             return Ok(result);
+        }
+
+        [HttpGet("users")]
+        [Authorize]
+        [TypeFilter(typeof(AdminOnlyFilter))]
+
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var query = new GetAllUsersQuery();
+            var users = await _mediator.Send(query);
+            return Ok(users);
         }
 
         [HttpPost("logout")]

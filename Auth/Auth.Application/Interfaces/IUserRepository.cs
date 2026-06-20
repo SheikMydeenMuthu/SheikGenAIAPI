@@ -8,6 +8,7 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
     Task<RefreshToken?> GetByRefreshTokenAsync(string token);
     Task AddRefreshTokenAsync(RefreshToken refreshToken);
+    Task<IEnumerable<User>> GetAllUsersAsync();
     Task AddAsync(User user);
     void Update(User user);
 }

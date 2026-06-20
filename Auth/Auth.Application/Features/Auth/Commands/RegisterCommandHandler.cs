@@ -19,7 +19,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Guid>
         if (existing is not null)
             throw new InvalidOperationException("Email already registered");
 
-        var defaultRole = await _unitOfWork.Roles.GetByNameAsync("User");
+        var defaultRole = await _unitOfWork.Roles.GetByNameAsync(request.Role?? "User");
 
         var user = new User
         {

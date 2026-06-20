@@ -24,9 +24,13 @@ public class UserRepository : IUserRepository
     await _context.RefreshTokens
     .Include(rt => rt.User).ThenInclude(u => u.Role)
     .FirstOrDefaultAsync(rt => rt.Token == token);
-        
+
     public async Task AddRefreshTokenAsync(RefreshToken refreshToken) =>
     await _context.RefreshTokens.AddAsync(refreshToken);
+    
+
+    public async Task<IEnumerable<User>> GetAllUsersAsync() =>
+        await _context.Users.Include(u => u.Role).ToListAsync();
 
     public async Task AddAsync(User user) => await _context.Users.AddAsync(user);
 
