@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using FluentValidation;
+using Auth.API.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,13 @@ builder.Services.AddValidatorsFromAssembly(typeof(Auth.Application.Features.Auth
 builder.Services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<GlobalExceptionFilter>();
+    options.Filters.Add<LoggingActionFilter>();
+    options.Filters.Add<AdminOnlyFilter>();
+    options.Filters.Add<ApiResponseFilter>();
+});
 
 // API Versioning
 builder.Services.AddApiVersioning(options =>
@@ -55,6 +62,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 // CORS
 builder.Services.AddCors(options =>

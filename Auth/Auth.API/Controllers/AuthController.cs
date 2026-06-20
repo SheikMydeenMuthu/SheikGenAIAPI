@@ -1,6 +1,7 @@
 using Auth.Application.DTOs;
 using Auth.Application.Features.Auth.Commands;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,34 +18,23 @@ namespace Auth.API.Controllers
         {
             _mediator = mediator;
         }
+
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterRequestDto request)
         {
-            try
-            {
-                var command = new RegisterCommand(request.FullName, request.Email, request.Password);
-                var userId = await _mediator.Send(command);
-                return Ok(new { userId });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var command = new RegisterCommand(request.FullName, request.Email, request.Password);
+            var userId = await _mediator.Send(command);
+            return Ok(new { userId });
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
-            try
-            {
-                var command = new LoginCommand(request.Email, request.Password);
-                var result = await _mediator.Send(command);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var command = new LoginCommand(request.Email, request.Password);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
         [HttpPost("logout")]
