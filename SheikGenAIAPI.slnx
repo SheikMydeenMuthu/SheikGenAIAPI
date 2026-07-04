@@ -4,4 +4,10 @@
     <Project Path="Auth/Auth.Application/Auth.Application.csproj" />
     <Project Path="Auth/Auth.Infrastructure/Auth.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/HR/">
+    <Project Path="HR/HR.API/HR.API.csproj" />
+    <Project Path="HR/HR.Application/HR.Application.csproj" />
+    <Project Path="HR/HR.Domain/HR.Domain.csproj" />
+    <Project Path="HR/HR.Infrastructure/HR.Infrastructure.csproj" />
+  </Folder>
 </Solution>
