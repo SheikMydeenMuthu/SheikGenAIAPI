@@ -19,7 +19,7 @@ public class LeaveRequestsController : ControllerBase
     public LeaveRequestsController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
-    public async Task<IActionResult> Apply(ApplyLeaveCommand command)
+    public async Task<IActionResult> Apply([FromBody]ApplyLeaveCommand command)
     {
         var id = await _mediator.Send(command);
         return Ok(new { id });

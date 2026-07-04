@@ -5,6 +5,8 @@ using HR.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Diagnostics;
+using HR.Application.Common.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +51,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(errApp =>
+{
+    errApp.Run(async context =>
+    {
+        var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = ex is NotFoundException ? 404 : 500;
+        await context.Response.WriteAsJsonAsync(new { error = ex?.Message });
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {
