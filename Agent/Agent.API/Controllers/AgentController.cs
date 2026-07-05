@@ -48,23 +48,12 @@ public class AgentController : ControllerBase
             kernel.ImportPluginFromObject(_leavePlugin, "LeavePlugin");
             kernel.ImportPluginFromObject(_onboardingPlugin, "OnboardingPlugin");
 
-            // var leaveResult = await kernel.InvokeAsync("LeavePlugin", "apply_leave", new KernelArguments
-            // {
-            //     ["employeeId"] = request.EmployeeId.ToString(),
-            //     ["leaveType"] = 0,
-            //     ["startDate"] = request.StartDate,
-            //     ["endDate"] = request.EndDate,
-            //     ["reason"] = request.Message
-            // });
-
-            // var onboardingResult = await kernel.InvokeAsync("OnboardingPlugin", "get_onboarding_tasks", new KernelArguments
-            // {
-            //     ["employeeId"] = request.EmployeeId.ToString()
-            // });
-
             if (!_sessions.TryGetValue(request.EmployeeId, out var history))
             {
+
                 history = new ChatHistory();
+                history.AddSystemMessage("You are an HR assistant. Help employees with leave requests and onboarding tasks. For casual greetings, respond friendly and explain what you can help with. Only call plugins when user explicitly requests an action.");
+
                 _sessions[request.EmployeeId] = history;
             }
 
