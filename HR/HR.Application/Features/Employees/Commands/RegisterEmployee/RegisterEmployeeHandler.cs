@@ -17,7 +17,7 @@ public class RegisterEmployeeHandler : IRequestHandler<RegisterEmployeeCommand, 
 
         var employee = new Employee
         {
-            Id = Guid.NewGuid(),
+            Id = request.Id ?? Guid.NewGuid(),
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,

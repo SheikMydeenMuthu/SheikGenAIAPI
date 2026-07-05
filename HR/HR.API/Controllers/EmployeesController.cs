@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace HR.API.Controllers;
 
 [ApiController]
-[Authorize]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class EmployeesController : ControllerBase
@@ -25,6 +24,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _mediator.Send(new GetEmployeeByIdQuery(id));

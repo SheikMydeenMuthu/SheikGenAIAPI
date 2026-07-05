@@ -20,6 +20,11 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+        services.AddHttpClient("HRClient", client =>
+        {
+            client.BaseAddress = new Uri(config["Services:HRApi"]!);
+        });
+
         return services;
     }
 }

@@ -52,8 +52,7 @@ public class AgentController : ControllerBase
             {
 
                 history = new ChatHistory();
-                history.AddSystemMessage("You are an HR assistant. Help employees with leave requests and onboarding tasks. For casual greetings, respond friendly and explain what you can help with. Only call plugins when user explicitly requests an action.");
-
+                history.AddSystemMessage("You are an HR assistant. " + "Never apply leave without explicit start date, end date and reason from user. " + "Always ask for missing details before calling any plugin.");
                 _sessions[request.EmployeeId] = history;
             }
 
