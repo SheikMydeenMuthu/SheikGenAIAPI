@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>58b6bfdc-ba37-4fbf-875d-1dd2b233c1e6</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+  <None Update="ocelot.json">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+    <PackageReference Include="Ocelot" Version="24.1.0" />
+    <PackageReference Include="Ocelot.Provider.Polly" Version="24.1.0" />
+  </ItemGroup>
+
+</Project>
