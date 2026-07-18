@@ -7,8 +7,62 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using FluentValidation;
 using Auth.API.Filters;
+using Serilog;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Azure.Monitor.OpenTelemetry.Exporter;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ---------- Serilog ----------
+var useAppInsights = builder.Configuration.GetValue<bool>("Observability:UseApplicationInsights");
+var aiConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+
+var loggerConfig = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithEnvironmentName()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "logs/authapi-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14);
+
+if (useAppInsights && !string.IsNullOrWhiteSpace(aiConnectionString))
+{
+    var telemetryConfig = new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+    {
+        ConnectionString = aiConnectionString
+    };
+
+    loggerConfig.WriteTo.ApplicationInsights(
+        telemetryConfig,
+        new Serilog.Sinks.ApplicationInsights.TelemetryConverters.TraceTelemetryConverter());
+}
+
+Log.Logger = loggerConfig.CreateLogger();
+builder.Host.UseSerilog();
+
+// ---------- OpenTelemetry ----------
+var otelBuilder = builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("Auth.API"))
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation();
+
+        if (useAppInsights && !string.IsNullOrWhiteSpace(aiConnectionString))
+        {
+            tracing.AddAzureMonitorTraceExporter(o => o.ConnectionString = aiConnectionString);
+        }
+        else
+        {
+            tracing.AddConsoleExporter();
+        }
+    });
 
 // Infrastructure (DbContext, Repos, UoW, JWT service)
 builder.Services.AddInfrastructure(builder.Configuration);

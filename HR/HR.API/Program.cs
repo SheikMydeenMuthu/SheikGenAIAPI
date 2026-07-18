@@ -7,8 +7,63 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using HR.Application.Common.Exceptions;
+using Serilog;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using OpenTelemetry.Instrumentation.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ---------- Serilog ----------
+var useAppInsights = builder.Configuration.GetValue<bool>("Observability:UseApplicationInsights");
+var aiConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+
+var loggerConfig = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithEnvironmentName()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "logs/hrapi-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14);
+
+if (useAppInsights && !string.IsNullOrWhiteSpace(aiConnectionString))
+{
+    var telemetryConfig = new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration
+    {
+        ConnectionString = aiConnectionString
+    };
+
+    loggerConfig.WriteTo.ApplicationInsights(
+        telemetryConfig,
+        new Serilog.Sinks.ApplicationInsights.TelemetryConverters.TraceTelemetryConverter());
+}
+
+Log.Logger = loggerConfig.CreateLogger();
+builder.Host.UseSerilog();
+
+// ---------- OpenTelemetry ----------
+var otelBuilder = builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("HR.API"))
+    .WithTracing(tracing =>
+    {
+        tracing
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation();
+
+        if (useAppInsights && !string.IsNullOrWhiteSpace(aiConnectionString))
+        {
+            tracing.AddAzureMonitorTraceExporter(o => o.ConnectionString = aiConnectionString);
+        }
+        else
+        {
+            tracing.AddConsoleExporter();
+        }
+    });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

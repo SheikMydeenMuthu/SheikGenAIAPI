@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Auth.API.Controllers
 {
@@ -34,6 +35,7 @@ namespace Auth.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
+            Log.Information("Login attempt for user: {Email}", request.Email);
             var command = new LoginCommand(request.Email, request.Password);
             var result = await _mediator.Send(command);
             return Ok(result);
