@@ -32,9 +32,14 @@ public class LeaveEventConsumer : BackgroundService
     {
         PropertyNameCaseInsensitive = true
     };
-    
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (!_settings.Enabled)
+        {
+            _logger.LogWarning("Service Bus is disabled via configuration. LeaveEventConsumer will not start.");
+            return;
+        }
         _client = new ServiceBusClient(_settings.ConnectionString);
         _processor = _client.CreateProcessor(_settings.TopicName, _settings.SubscriptionName,
             new ServiceBusProcessorOptions { MaxConcurrentCalls = 1, AutoCompleteMessages = false });

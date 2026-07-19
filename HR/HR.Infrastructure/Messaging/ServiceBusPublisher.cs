@@ -8,14 +8,25 @@ namespace HR.Infrastructure.Messaging;
 public class ServiceBusPublisher : IEventPublisher
 {
     private readonly ServiceBusClient _client;
+    private readonly ServiceBusSettings _settings;
 
     public ServiceBusPublisher(IOptions<ServiceBusSettings> settings)
     {
-        _client = new ServiceBusClient(settings.Value.ConnectionString);
+        _settings = settings.Value;
+        if (_settings.Enabled)
+        {
+            _client = new ServiceBusClient(_settings.ConnectionString);
+        }
     }
 
     public async Task PublishAsync<T>(string topicName, T eventData, CancellationToken cancellationToken = default)
     {
+        if (!_settings.Enabled || _client is null)
+        {
+            // silently skip, or log
+            return;
+        }
+
         var sender = _client.CreateSender(topicName);
         var json = JsonSerializer.Serialize(eventData);
         var message = new ServiceBusMessage(json) { ContentType = "application/json" };
