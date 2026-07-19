@@ -12,8 +12,13 @@ using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.EntityFrameworkCore;
+using HR.Infrastructure.Messaging;
+using HR.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ServiceBusSettings>(builder.Configuration.GetSection("ServiceBusSettings"));
+builder.Services.AddSingleton<IEventPublisher, ServiceBusPublisher>();
 
 // ---------- Serilog ----------
 var useAppInsights = builder.Configuration.GetValue<bool>("Observability:UseApplicationInsights");

@@ -16,4 +16,10 @@
     <Project Path="HR/HR.Domain/HR.Domain.csproj" />
     <Project Path="HR/HR.Infrastructure/HR.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Notification/">
+    <Project Path="Notification/Notification.Application/Notification.Application.csproj" />
+    <Project Path="Notification/Notification.Domain/Notification.Domain.csproj" />
+    <Project Path="Notification/Notification.Infrastructure/Notification.Infrastructure.csproj" />
+    <Project Path="Notification/Notification.Worker/Notification.Worker.csproj" />
+  </Folder>
 </Solution>
